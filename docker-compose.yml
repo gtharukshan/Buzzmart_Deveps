@@ -1,27 +1,35 @@
-  version: '3'
-  services: 
-    backend:
-      build:
-        context: ./backend
-      ports:
-        - "5000:5000"
-      networks:
-        - mern-network
-      
+version: '3'
+services:
+  backend:
+    image: mern-backend:latest
+    build:
+      context: ./backend
+    ports:
+      - "5000:5000"
+    networks:
+      - mern-network
+    depends_on:
+      - mongo
 
-    frontend: 
-      build: 
-        context: ./frontend
-      ports:
-        - "8000:80"
-    
-    mongo:
-      image: mongo:latest
-      ports:
-        - "27017:27017"
-      networks:
-        - mern-network
-      
-  networks:
-    mern-network:
-      driver: bridge
+  frontend:
+    image: mern-frontend:latest
+    build:
+      context: ./frontend
+    ports:
+      - "8000:80"
+    networks:
+      - mern-network
+    depends_on:
+      - backend
+
+  mongo:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    networks:
+      - mern-network
+
+networks:
+  mern-network:
+    external: true
+    name: mern-network
