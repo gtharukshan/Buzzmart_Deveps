@@ -1,7 +1,7 @@
 version: '3'
 services:
   backend:
-    image: mern-backend:latest
+    image: tharukshan/mern-backend:latest
     build:
       context: ./backend
     ports:
@@ -12,7 +12,7 @@ services:
       - mongo
 
   frontend:
-    image: mern-frontend:latest
+    image: tharukshan/mern-frontend:latest
     build:
       context: ./frontend
     ports:

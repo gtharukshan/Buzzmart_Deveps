@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         // Define these in Jenkins Credentials/Environment or override here
-        DOCKER_HUB_USER = "${env.DOCKER_HUB_USER ?: 'yourusername'}"
+        DOCKER_HUB_USER = "${env.DOCKER_HUB_USER ?: 'tharukshan'}"
         DOCKER_HUB_REPO_BACKEND = "${env.DOCKER_HUB_REPO_BACKEND ?: 'mern-backend'}"
         DOCKER_HUB_REPO_FRONTEND = "${env.DOCKER_HUB_REPO_FRONTEND ?: 'mern-frontend'}"
         // Credential ID stored in Jenkins
