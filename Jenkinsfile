@@ -59,9 +59,11 @@ pipeline {
             steps {
                 script {
                     echo "Pushing images to Docker Hub..."
-                    docker.withRegistry('', DOCKER_CREDENTIALS_ID) {
+                    withCredentials([usernamePassword(credentialsId: DOCKER_CREDENTIALS_ID, usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                        sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
                         sh "docker push ${DOCKER_HUB_USER}/${DOCKER_HUB_REPO_BACKEND}:latest"
                         sh "docker push ${DOCKER_HUB_USER}/${DOCKER_HUB_REPO_FRONTEND}:latest"
+                        sh "docker logout"
                     }
                 }
             }
