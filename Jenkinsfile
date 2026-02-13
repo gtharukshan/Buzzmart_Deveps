@@ -39,21 +39,18 @@ pipeline {
                 script {
                     echo "--- DEBUGGING INFO ---"
                     sh "whoami"
-                    sh "which docker"
-                    sh "docker version"
-                    sh "pwd"
-                    sh "ls -la backend"
+                    sh "ls -l /var/run/docker.sock"
+                    // Check if we can talk to the socket raw
+                    sh "curl --unix-socket /var/run/docker.sock http://localhost/_ping || echo 'Ping failed'"
+                    sh "curl --unix-socket /var/run/docker.sock http://localhost/info || echo 'Info failed'"
                     echo "----------------------"
                     
-                    echo "Test Docker Connectivity..."
-                    sh "docker run --rm hello-world"
-
                     echo "Building Backend Image..."
-                    // Try disabling BuildKit to see if it fixes the 'Not Found' error
-                    sh "DOCKER_BUILDKIT=0 docker build -t ${DOCKER_HUB_USER}/${DOCKER_HUB_REPO_BACKEND}:latest ./backend"
+                    // explicit context setting just in case
+                    sh "docker build -t ${DOCKER_HUB_USER}/${DOCKER_HUB_REPO_BACKEND}:latest ./backend"
                     
                     echo "Building Frontend Image..."
-                    sh "DOCKER_BUILDKIT=0 docker build -t ${DOCKER_HUB_USER}/${DOCKER_HUB_REPO_FRONTEND}:latest ./frontend"
+                    sh "docker build -t ${DOCKER_HUB_USER}/${DOCKER_HUB_REPO_FRONTEND}:latest ./frontend"
                 }
             }
         }
