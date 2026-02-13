@@ -2,13 +2,29 @@ pipeline {
     agent any
 
     environment {
-        // Define these in Jenkins Credentials/Environment or override here
+        // --- CONFIGURATION REQUIRED ---
+        // update these values or configure them in Jenkins Global Properties
+        
+        // Docker Hub Username
         DOCKER_HUB_USER = "${env.DOCKER_HUB_USER ?: 'tharukshan'}"
+        
+        // Docker Image Names
         DOCKER_HUB_REPO_BACKEND = "${env.DOCKER_HUB_REPO_BACKEND ?: 'mern-backend'}"
         DOCKER_HUB_REPO_FRONTEND = "${env.DOCKER_HUB_REPO_FRONTEND ?: 'mern-frontend'}"
-        // Credential ID stored in Jenkins
+        
+        // Jenkins Credential IDs (Create these in Jenkins > Manage Jenkins > Credentials)
+        // Type: Username with password
         DOCKER_CREDENTIALS_ID = "${env.DOCKER_CREDENTIALS_ID ?: 'docker-hub-credentials'}"
-        ANSIBLE_INVENTORY = "${env.ANSIBLE_INVENTORY ?: 'ansible/inventory'}"
+        
+        // Type: SSH Username with private key
+        SSH_CREDENTIALS_ID = "${env.SSH_CREDENTIALS_ID ?: 'ssh-private-key-id'}"
+        
+        // Ansible Configuration - REMOVED
+        // ANSIBLE_INVENTORY = "${env.ANSIBLE_INVENTORY ?: 'ansible/inventory'}"
+        
+        // Server Configuration
+        DEPLOY_SERVER_IP = "${env.DEPLOY_SERVER_IP ?: 'YOUR_SERVER_IP_HERE'}" // Set this in Jenkins Global Properties or here
+        DEPLOY_SERVER_USER = "${env.DEPLOY_SERVER_USER ?: 'ubuntu'}"
     }
 
     stages {
@@ -21,7 +37,17 @@ pipeline {
         stage('Build Docker Images') {
             steps {
                 script {
+                    echo "--- DEBUGGING INFO ---"
+                    sh "pwd"
+                    sh "ls -la"
+                    sh "ls -la backend"
+                    sh "docker info"
+                    echo "----------------------"
+                    
+                    echo "Building Backend Image..."
                     sh "docker build -t ${DOCKER_HUB_USER}/${DOCKER_HUB_REPO_BACKEND}:latest ./backend"
+                    
+                    echo "Building Frontend Image..."
                     sh "docker build -t ${DOCKER_HUB_USER}/${DOCKER_HUB_REPO_FRONTEND}:latest ./frontend"
                 }
             }
@@ -30,6 +56,7 @@ pipeline {
         stage('Push to Docker Hub') {
             steps {
                 script {
+                    echo "Pushing images to Docker Hub..."
                     docker.withRegistry('', DOCKER_CREDENTIALS_ID) {
                         sh "docker push ${DOCKER_HUB_USER}/${DOCKER_HUB_REPO_BACKEND}:latest"
                         sh "docker push ${DOCKER_HUB_USER}/${DOCKER_HUB_REPO_FRONTEND}:latest"
@@ -38,13 +65,27 @@ pipeline {
             }
         }
 
-        stage('Deploy with Ansible') {
+        stage('Deploy to Server') {
             steps {
                 script {
-                    // Ensure ansible is installed and inventory is correct
-                    // You might need to set up SSH keys in Jenkins credential store and use sshagent
-                    sshagent (credentials: ['ssh-private-key-id']) { 
-                        sh "ansible-playbook -i ${ANSIBLE_INVENTORY} ansible/playbook.yml"
+                    echo "Deploying directly to server via SSH..."
+                    
+                    // We need to copy docker-compose.yml to the server and run it
+                    sshagent (credentials: [SSH_CREDENTIALS_ID]) {
+                        // 1. Create directory
+                        sh "ssh -o StrictHostKeyChecking=no ${DEPLOY_SERVER_USER}@${DEPLOY_SERVER_IP} 'mkdir -p /opt/buzzmart'"
+                        
+                        // 2. Copy docker-compose.yml
+                        sh "scp -o StrictHostKeyChecking=no docker-compose.yml ${DEPLOY_SERVER_USER}@${DEPLOY_SERVER_IP}:/opt/buzzmart/docker-compose.yml"
+                        
+                        // 3. Pull and Up
+                        sh """
+                            ssh -o StrictHostKeyChecking=no ${DEPLOY_SERVER_USER}@${DEPLOY_SERVER_IP} '
+                                cd /opt/buzzmart && 
+                                docker compose pull && 
+                                docker compose up -d --remove-orphans
+                            '
+                        """
                     }
                 }
             }
