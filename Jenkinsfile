@@ -38,17 +38,22 @@ pipeline {
             steps {
                 script {
                     echo "--- DEBUGGING INFO ---"
+                    sh "whoami"
+                    sh "which docker"
+                    sh "docker version"
                     sh "pwd"
-                    sh "ls -la"
                     sh "ls -la backend"
-                    sh "docker info"
                     echo "----------------------"
                     
+                    echo "Test Docker Connectivity..."
+                    sh "docker run --rm hello-world"
+
                     echo "Building Backend Image..."
-                    sh "docker build -t ${DOCKER_HUB_USER}/${DOCKER_HUB_REPO_BACKEND}:latest ./backend"
+                    // Try disabling BuildKit to see if it fixes the 'Not Found' error
+                    sh "DOCKER_BUILDKIT=0 docker build -t ${DOCKER_HUB_USER}/${DOCKER_HUB_REPO_BACKEND}:latest ./backend"
                     
                     echo "Building Frontend Image..."
-                    sh "docker build -t ${DOCKER_HUB_USER}/${DOCKER_HUB_REPO_FRONTEND}:latest ./frontend"
+                    sh "DOCKER_BUILDKIT=0 docker build -t ${DOCKER_HUB_USER}/${DOCKER_HUB_REPO_FRONTEND}:latest ./frontend"
                 }
             }
         }
