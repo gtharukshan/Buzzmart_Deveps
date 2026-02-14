@@ -1,4 +1,3 @@
-version: '3'
 services:
   backend:
     image: tharukshan/mern-backend:latest
@@ -31,5 +30,4 @@ services:
 
 networks:
   mern-network:
-    external: true
-    name: mern-network
+    driver: bridge

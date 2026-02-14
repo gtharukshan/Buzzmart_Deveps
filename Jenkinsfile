@@ -73,6 +73,7 @@ pipeline {
             steps {
                 script {
                     echo "Deploying directly to server via SSH..."
+                    echo "Starting deployment process... (Commit: Force Update)"
                     
                     // We need to copy docker-compose.yml to the server and run it
                     sshagent (credentials: [SSH_CREDENTIALS_ID]) {
