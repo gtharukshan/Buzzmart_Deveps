@@ -6,4 +6,8 @@ output "frontend_url" {
   value = "http://localhost:8000"
 }
 
-# Removed mongo_port output as the container is no longer managed by Terraform
+output "server_public_ip" {
+  description = "Public IP address of the EC2 instance"
+  value       = aws_instance.buzzmart_server.public_ip
+}
+

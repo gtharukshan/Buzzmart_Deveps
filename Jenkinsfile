@@ -23,7 +23,7 @@ pipeline {
         // ANSIBLE_INVENTORY = "${env.ANSIBLE_INVENTORY ?: 'ansible/inventory'}"
         
         // Server Configuration
-        DEPLOY_SERVER_IP = "${env.DEPLOY_SERVER_IP ?: 'YOUR_SERVER_IP_HERE'}" // Set this in Jenkins Global Properties or here
+        DEPLOY_SERVER_IP = "${env.DEPLOY_SERVER_IP ?: '54.89.204.118'}" // AWS EC2 Instance IP
         DEPLOY_SERVER_USER = "${env.DEPLOY_SERVER_USER ?: 'ubuntu'}"
     }
 
@@ -77,15 +77,15 @@ pipeline {
                     // We need to copy docker-compose.yml to the server and run it
                     sshagent (credentials: [SSH_CREDENTIALS_ID]) {
                         // 1. Create directory
-                        sh "ssh -o StrictHostKeyChecking=no ${DEPLOY_SERVER_USER}@${DEPLOY_SERVER_IP} 'mkdir -p /opt/buzzmart'"
+                        sh "ssh -o StrictHostKeyChecking=no ${DEPLOY_SERVER_USER}@${DEPLOY_SERVER_IP} 'mkdir -p /home/ubuntu/buzzmart'"
                         
                         // 2. Copy docker-compose.yml
-                        sh "scp -o StrictHostKeyChecking=no docker-compose.yml ${DEPLOY_SERVER_USER}@${DEPLOY_SERVER_IP}:/opt/buzzmart/docker-compose.yml"
+                        sh "scp -o StrictHostKeyChecking=no docker-compose.yml ${DEPLOY_SERVER_USER}@${DEPLOY_SERVER_IP}:/home/ubuntu/buzzmart/docker-compose.yml"
                         
                         // 3. Pull and Up
                         sh """
                             ssh -o StrictHostKeyChecking=no ${DEPLOY_SERVER_USER}@${DEPLOY_SERVER_IP} '
-                                cd /opt/buzzmart && 
+                                cd /home/ubuntu/buzzmart && 
                                 docker compose pull && 
                                 docker compose up -d --remove-orphans
                             '
