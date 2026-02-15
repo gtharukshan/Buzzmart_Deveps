@@ -4,7 +4,7 @@ const dotenv = require('dotenv');
 const path = require('path');
 const cors = require('cors');
 const connectDatabase = require('./config/connectDatabase');
-dotenv.config({path: path.join(__dirname, 'config', 'config.env')})
+dotenv.config({ path: path.join(__dirname, 'config', 'config.env') })
 
 const products = require('./routes/product');
 const orders = require('./routes/order');
@@ -16,9 +16,13 @@ app.use(express.json());
 app.use(cors());
 app.use('/images', express.static(path.join(__dirname, 'templates/images')));
 
-app.use('/api/v1/',products);
-app.use('/api/v1/',orders);
-app.use('/api/v1/', users); 
+app.get('/', (req, res) => {
+    res.send('BuzzMart Backend is Running!');
+});
+
+app.use('/api/v1/', products);
+app.use('/api/v1/', orders);
+app.use('/api/v1/', users);
 
 
 
