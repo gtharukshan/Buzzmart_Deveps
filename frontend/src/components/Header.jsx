@@ -10,7 +10,7 @@ export default function Header({ cartItems }) {
       <div className="container">
         {/* Brand */}
         <Link className="navbar-brand fw-bold fs-4 text-black" to="/">
-          <h3>BuzzMart Version 2.0</h3>
+          <h3>THARUKSHAN</h3>
         </Link>
 
         {/* Toggler for mobile */}
