@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom"; // for redirect
-import { toast } from "react-toastify"; 
+import { toast } from "react-toastify";
 import "../App.css";// for messages
 
 export default function Login() {
@@ -12,7 +12,7 @@ export default function Login() {
     e.preventDefault();
 
     try {
-      const response = await fetch("http://localhost:5000/api/v1/login", {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

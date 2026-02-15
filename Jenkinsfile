@@ -50,7 +50,7 @@ pipeline {
                     sh "docker build -t ${DOCKER_HUB_USER}/${DOCKER_HUB_REPO_BACKEND}:latest ./backend"
                     
                     echo "Building Frontend Image..."
-                    sh "docker build -t ${DOCKER_HUB_USER}/${DOCKER_HUB_REPO_FRONTEND}:latest ./frontend"
+                    sh "docker build --build-arg REACT_APP_API_URL=http://${DEPLOY_SERVER_IP}:5000/api/v1 -t ${DOCKER_HUB_USER}/${DOCKER_HUB_REPO_FRONTEND}:latest ./frontend"
                 }
             }
         }
